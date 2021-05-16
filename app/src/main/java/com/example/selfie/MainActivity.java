@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -285,10 +287,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void dialogSetting() {
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialogs_setting);
 
+        Boolean checked = sharedPref.getBoolean("service", false);
         Switch switchSetting = dialog.findViewById(R.id.switch_setting);
+        switchSetting.setChecked(checked);
         TextView textViewOk = dialog.findViewById(R.id.tv_ok2);
         textViewOk.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -297,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        SharedPreferences.Editor editor = sharedPref.edit();
         switchSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -304,10 +310,13 @@ public class MainActivity extends AppCompatActivity {
                 if (checked) {
                     Intent serviceIntent = new Intent(MainActivity.this, ExampleService.class);
                     serviceIntent.putExtra("inputExtra", "ok");
-
+                    editor.putBoolean("service", true);
+                    editor.apply();
                     startService(serviceIntent);
                 } else {
                     Intent serviceIntent = new Intent(MainActivity.this, ExampleService.class);
+                    editor.putBoolean("service", false);
+                    editor.apply();
                     stopService(serviceIntent);
                 }
             }
